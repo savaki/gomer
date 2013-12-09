@@ -9,6 +9,7 @@ a.button {
   padding: 15px 15px;
   margin: 5px;
   display: block;
+  color: black;
 }
 
 a.button:hover {
