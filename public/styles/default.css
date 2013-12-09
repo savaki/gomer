@@ -1,0 +1,50 @@
+body {
+  background: black;
+}
+
+a.button {
+  font-family: arial, sans-serif;
+  text-decoration: none;
+  background-color: #fda754;
+  padding: 15px 15px;
+  margin: 5px;
+  display: block;
+}
+
+a.button:hover {
+  background-color: #FDB57C;
+}
+
+a.button.pressed {
+  background-color: #AE6E3E;
+}
+
+a.button:visited {
+  color: black;
+}
+
+a.left, .left > a {
+  text-align: right;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.right, .right > a {
+  text-align: left;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.center {
+  text-align: center;
+  border-radius: 20px;
+}
+
+div.two-column {
+  width: 500px;
+}
+
+div.left, div.right {
+  width: 250px;
+  float: left;
+}

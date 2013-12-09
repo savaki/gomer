@@ -1,0 +1,49 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="/styles/default.css"/>
+  <script language="JavaScript" type="text/javascript" src="/scripts/jquery-2.0.3.min.js"></script>
+  <script language="JavaScript">
+    $(document).ready(function () {
+      function handleBelkin(evt) {
+        var button = $(this)
+        var name = button.attr("data-name");
+        var action = button.attr("data-action");
+        button.addClass("pressed");
+
+        $.ajax({
+          type: "POST",
+          url: "/api/belkin/" + name + "/" + action,
+          success: function () {
+            button.removeClass("pressed");
+          }
+        });
+
+        return false;
+      }
+
+      $(".belkin").on("click", handleBelkin);
+      $(".belkin").on("touchstart", handleBelkin);
+    })
+  </script>
+</head>
+<body>
+
+<div class="two-column">
+  <a href="#" data-name="all" data-action="toggle" class="belkin button center">Toggle All</a>
+
+  <div class="left">
+    <a href="#" data-name="kitchen_overhead" data-action="toggle" class="belkin button">Kitchen Overhead</a>
+    <a href="#" data-name="kitchen_sink" data-action="toggle" class="belkin button">Kitchen Sink</a>
+    <a href="#" data-name="mirror_light" data-action="toggle" class="belkin button">Mirror Overhead</a>
+  </div>
+  <div class="right">
+    <a href="#" data-name="office_overhead" data-action="toggle" class="belkin button">Office Overhead</a>
+    <a href="#" data-name="office_plug" data-action="toggle" class="belkin button">Office Plug</a>
+  </div>
+
+  <br clear="both"/>
+
+  <a href="#" data-name="all" data-action="off" class="belkin button center">All Off</a>
+</div>
+</body>
+</html>
