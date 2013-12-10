@@ -20,16 +20,34 @@
 
         return false;
       }
-
       $(".belkin").on("click", handleBelkin);
       $(".belkin").on("touchstart", handleBelkin);
+
+      function handleHue(evt) {
+        var button = $(this)
+        var name = button.attr("data-name");
+        var action = button.attr("data-action");
+        button.addClass("pressed");
+
+        $.ajax({
+          type: "POST",
+          url: "/api/hue/" + name + "/" + action,
+          success: function () {
+            button.removeClass("pressed");
+          }
+        });
+
+        return false;
+      }
+      $(".hue").on("click", handleHue);
+      $(".hue").on("touchstart", handleHue);
     })
   </script>
 </head>
 <body>
 
 <div class="two-column">
-  <a href="#" data-name="all" data-action="toggle" class="belkin button center">Toggle All</a>
+  <a href="#" data-name="all" data-action="on" class="belkin hue button center">All On</a>
 
   <div class="left">
     <a href="#" data-name="kitchen_overhead" data-action="toggle" class="belkin button">Kitchen Overhead</a>
@@ -39,11 +57,12 @@
   <div class="right">
     <a href="#" data-name="office_overhead" data-action="toggle" class="belkin button">Office Overhead</a>
     <a href="#" data-name="office_plug" data-action="toggle" class="belkin button">Office Plug</a>
+    <a href="#" data-name="dome" data-action="on" class="hue button">Rear Dome Lights</a>
   </div>
 
   <br clear="both"/>
 
-  <a href="#" data-name="all" data-action="off" class="belkin button center">All Off</a>
+  <a href="#" data-name="all" data-action="off" class="belkin hue button center">All Off</a>
 </div>
 </body>
 </html>
