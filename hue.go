@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/savaki/hue"
+	"github.com/savaki/go.hue"
 	"io"
 	"net/http"
 )
