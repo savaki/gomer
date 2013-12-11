@@ -1,6 +1,18 @@
 <html>
 <head>
+  <meta name="viewport" content="user-scalable=0, initial-scale=1.0"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>Homie</title>
+
+  <!-- specify the home screen icons -->
+  <link rel="apple-touch-icon" href="/images/mcp-icon.png"/>
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/mcp-icon-ipad.png"/>
+  <link rel="apple-touch-icon" sizes="114x114" href="/images/mcp-icon-iphone-retina.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/images/mcp-icon-ipad-retina.png"/>
+
   <link rel="stylesheet" type="text/css" href="/styles/default.css"/>
+  <link rel="stylesheet" type="text/css" media="(max-width: 320px)" href="/styles/mobile-portrait.css"/>
+
   <script language="JavaScript" type="text/javascript" src="/scripts/jquery-2.0.3.min.js"></script>
   <script language="JavaScript">
     $(document).ready(function () {
@@ -14,12 +26,13 @@
           type: "POST",
           url: "/api/belkin/" + name + "/" + action,
           success: function () {
-            button.removeClass("pressed");
+            $(".pressed").removeClass("pressed");
           }
         });
 
         return false;
       }
+
       $(".belkin").on("click", handleBelkin);
       $(".belkin").on("touchstart", handleBelkin);
 
@@ -33,12 +46,13 @@
           type: "POST",
           url: "/api/hue/" + name + "/" + action,
           success: function () {
-            button.removeClass("pressed");
+            $(".pressed").removeClass("pressed");
           }
         });
 
         return false;
       }
+
       $(".hue").on("click", handleHue);
       $(".hue").on("touchstart", handleHue);
     })
@@ -49,18 +63,18 @@
 <div class="two-column">
   <a href="#" data-name="all" data-action="on" class="belkin hue button center">All On</a>
 
-  <div class="left">
-    <a href="#" data-name="kitchen_overhead" data-action="toggle" class="belkin button">Kitchen Overhead</a>
-    <a href="#" data-name="kitchen_sink" data-action="toggle" class="belkin button">Kitchen Sink</a>
-    <a href="#" data-name="mirror_light" data-action="toggle" class="belkin button">Mirror Overhead</a>
+  <div class="clearfix">
+    <div class="left">
+      <a href="#" data-name="kitchen_overhead" data-action="toggle" class="belkin button">Kitchen Overhead</a>
+      <a href="#" data-name="kitchen_sink" data-action="toggle" class="belkin button">Kitchen Sink</a>
+      <a href="#" data-name="mirror_light" data-action="toggle" class="belkin button">Mirror Overhead</a>
+    </div>
+    <div class="right">
+      <a href="#" data-name="office_overhead" data-action="toggle" class="belkin button">Office Overhead</a>
+      <a href="#" data-name="office_plug" data-action="toggle" class="belkin button">Office Plug</a>
+      <a href="#" data-name="dome" data-action="on" class="hue button">Rear Dome Lights</a>
+    </div>
   </div>
-  <div class="right">
-    <a href="#" data-name="office_overhead" data-action="toggle" class="belkin button">Office Overhead</a>
-    <a href="#" data-name="office_plug" data-action="toggle" class="belkin button">Office Plug</a>
-    <a href="#" data-name="dome" data-action="on" class="hue button">Rear Dome Lights</a>
-  </div>
-
-  <br clear="both"/>
 
   <a href="#" data-name="all" data-action="off" class="belkin hue button center">All Off</a>
 </div>

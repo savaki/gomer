@@ -1,3 +1,17 @@
+.clearfix {
+  *zoom: 1;
+}
+
+.clearfix:before, .clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+
+.clearfix:after {
+  clear: both;
+}
+
 body {
   background: black;
 }
@@ -6,8 +20,6 @@ a.button {
   font-family: arial, sans-serif;
   text-decoration: none;
   background-color: #fda754;
-  padding: 15px 15px;
-  margin: 5px;
   display: block;
   color: black;
 }
@@ -26,26 +38,16 @@ a.button:visited {
 
 a.left, .left > a {
   text-align: right;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
 }
 
 .right, .right > a {
   text-align: left;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
 }
 
 .center {
   text-align: center;
-  border-radius: 20px;
-}
-
-div.two-column {
-  width: 500px;
 }
 
 div.left, div.right {
-  width: 250px;
   float: left;
 }
