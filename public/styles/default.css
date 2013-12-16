@@ -16,6 +16,14 @@ body {
   background: black;
 }
 
+.colorloop a.button {
+  background-color: #54affd;
+}
+
+.colorloop a.button:hover {
+  background-color: #7cc0fc;
+}
+
 a.button {
   font-family: arial, sans-serif;
   text-decoration: none;
