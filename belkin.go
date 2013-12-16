@@ -1,15 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/savaki/wemo"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 type BelkinRequest struct {
-	name   string
-	action string
+	name     string
+	action   string
+	response chan string
 }
 
 func BelkinProcessor(ch chan BelkinRequest) {
@@ -18,11 +21,6 @@ func BelkinProcessor(ch chan BelkinRequest) {
 
 		var devices []*wemo.Device
 		switch request.name {
-		case "office_plug":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.32:49153"},
-			}
-
 		case "kitchen_overhead":
 			devices = []*wemo.Device{
 				&wemo.Device{Host: "10.0.1.8:49154"},
@@ -33,14 +31,30 @@ func BelkinProcessor(ch chan BelkinRequest) {
 				&wemo.Device{Host: "10.0.1.18:49153"},
 			}
 
-		case "mirror_light":
+		case "mirror_overhead":
 			devices = []*wemo.Device{
 				&wemo.Device{Host: "10.0.1.17:49153"},
 			}
 
 		case "office_overhead":
 			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.19:49153"},
+				&wemo.Device{Host: "10.0.1.19:49154"},
+				// &wemo.Device{Host: "10.0.1.19:49153"},
+			}
+
+		case "bathroom":
+			devices = []*wemo.Device{
+				&wemo.Device{Host: "10.0.1.24:49153"},
+			}
+
+		case "left_wall":
+			devices = []*wemo.Device{
+				&wemo.Device{Host: "10.0.1.32:49153"},
+			}
+
+		case "right_wall":
+			devices = []*wemo.Device{
+				&wemo.Device{Host: "10.0.1.25:49153"},
 			}
 
 		case "all":
@@ -49,7 +63,9 @@ func BelkinProcessor(ch chan BelkinRequest) {
 				&wemo.Device{Host: "10.0.1.8:49154"},
 				&wemo.Device{Host: "10.0.1.18:49153"},
 				&wemo.Device{Host: "10.0.1.17:49153"},
-				&wemo.Device{Host: "10.0.1.19:49153"},
+				&wemo.Device{Host: "10.0.1.19:49154"},
+				// &wemo.Device{Host: "10.0.1.19:49153"},
+				&wemo.Device{Host: "10.0.1.25:49153"},
 			}
 		}
 
@@ -57,10 +73,18 @@ func BelkinProcessor(ch chan BelkinRequest) {
 			switch request.action {
 			case "on":
 				device.On()
+
 			case "off":
 				device.Off()
+
 			case "toggle":
 				device.Toggle()
+
+			case "state":
+				if request.response != nil {
+					result := strconv.Itoa(device.GetBinaryState())
+					request.response <- result
+				}
 			}
 		}
 	}
@@ -72,9 +96,23 @@ func BelkinHandler(ch chan BelkinRequest) func(http.ResponseWriter, *http.Reques
 		name := vars["name"]
 		action := vars["action"]
 
-		ch <- BelkinRequest{name: name, action: action}
+		var response chan string = nil
+		if action == "state" {
+			response = make(chan string)
+		}
+
+		ch <- BelkinRequest{name: name, action: action, response: response}
 
 		w.WriteHeader(http.StatusOK)
-		io.WriteString(w, "hello world")
+
+		if response != nil {
+			defer close(response)
+			value := <-response
+			json := fmt.Sprintf(`{"status":"ok","state":%s}`, value)
+			io.WriteString(w, json)
+
+		} else {
+			io.WriteString(w, `{"status":"ok"}`)
+		}
 	}
 }
