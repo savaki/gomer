@@ -26,6 +26,11 @@ func main() {
 	go HueProcessor(*username, hueCh)
 	router.HandleFunc("/api/hue/{name}/{action}", HueHandler(hueCh)).Methods("POST")
 
+	// handle ir related commands
+	irCh := make(chan IrRequest, 20)
+	go IrProcessor(irCh)
+	router.HandleFunc("/api/ir/{name}/{action}", IrHandler(irCh)).Methods("POST")
+
 	// default to file server
 	router.Methods("GET").Handler(http.FileServer(http.Dir("public")))
 
