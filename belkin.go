@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/savaki/wemo"
-	"io"
-	"net/http"
 	"strconv"
 )
 
@@ -90,11 +88,10 @@ func BelkinProcessor(ch chan BelkinRequest) {
 	}
 }
 
-func BelkinHandler(ch chan BelkinRequest) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, request *http.Request) {
-		vars := mux.Vars(request)
-		name := vars["name"]
-		action := vars["action"]
+func BelkinHandler(ch chan BelkinRequest) func(*gin.Context) {
+	return func(c *gin.Context) {
+		name := c.Params.ByName("name")
+		action := c.Params.ByName("action")
 
 		var response chan string = nil
 		if action == "state" {
@@ -103,16 +100,14 @@ func BelkinHandler(ch chan BelkinRequest) func(http.ResponseWriter, *http.Reques
 
 		ch <- BelkinRequest{name: name, action: action, response: response}
 
-		w.WriteHeader(http.StatusOK)
-
 		if response != nil {
 			defer close(response)
 			value := <-response
 			json := fmt.Sprintf(`{"status":"ok","state":%s}`, value)
-			io.WriteString(w, json)
+			c.JSON(200, json)
 
 		} else {
-			io.WriteString(w, `{"status":"ok"}`)
+			c.JSON(200, map[string]string{"status": "ok"})
 		}
 	}
 }

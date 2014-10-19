@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"io"
+	"github.com/gin-gonic/gin"
 	"net"
-	"net/http"
 	"time"
 )
 
@@ -99,14 +97,12 @@ func sendIr(request IrRequest) error {
 	return nil
 }
 
-func IrHandler(ch chan IrRequest) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, request *http.Request) {
-		vars := mux.Vars(request)
-		name := vars["name"]
+func IrHandler(ch chan IrRequest) func(*gin.Context) {
+	return func(c *gin.Context) {
+		name := c.Params.ByName("name")
 
 		ch <- IrRequest(name)
 
-		w.WriteHeader(http.StatusOK)
-		io.WriteString(w, "hello world")
+		c.String(200, "hello world")
 	}
 }

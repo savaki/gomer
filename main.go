@@ -1,38 +1,51 @@
 package main
 
 import (
-	"flag"
-	"github.com/gorilla/mux"
+	"fmt"
+	"github.com/codegangsta/cli"
+	"github.com/gin-gonic/gin"
 	"net/http"
-)
-
-var (
-	port     = flag.String("port", "8080", "the port number to use")
-	username = flag.String("hue", "", "the hue username")
+	"os"
 )
 
 func main() {
-	flag.Parse()
+	app := cli.NewApp()
+	app.Name = "gomer"
+	app.Usage = "home automation system"
+	app.Version = "0.1"
+	app.Flags = []cli.Flag{
+		cli.IntFlag{"port", 8080, "the port number to list on", "PORT"},
+		cli.StringFlag{"hue", "", "the hue username", "HUE_USERNAME"},
+		cli.StringFlag{"docroot", "public", "html content directory", "DOCROOT"},
+	}
+	app.Action = Run
+	app.Run(os.Args)
+}
 
-	router := mux.NewRouter()
+func Run(c *cli.Context) {
+	port := c.Int("port")
+	username := c.String("hue")
+	docroot := c.String("docroot")
+
+	routes := gin.New()
 
 	// handle belkin related commands
 	belkinCh := make(chan BelkinRequest, 20)
 	go BelkinProcessor(belkinCh)
-	router.HandleFunc("/api/belkin/{name}/{action}", BelkinHandler(belkinCh)).Methods("POST")
+	routes.POST("/api/belkin/:name/:action", BelkinHandler(belkinCh))
 
 	// handle hue related commands
 	hueCh := make(chan HueRequest, 20)
-	go HueProcessor(*username, hueCh)
-	router.HandleFunc("/api/hue/{name}/{action}", HueHandler(hueCh)).Methods("POST")
+	go HueProcessor(username, hueCh)
+	routes.POST("/api/hue/:name/:action", HueHandler(hueCh))
 
 	// handle ir related commands
 	irCh := make(chan IrRequest, 20)
 	go IrProcessor(irCh)
-	router.HandleFunc("/api/ir/{name}/{action}", IrHandler(irCh)).Methods("POST")
+	routes.POST("/api/ir/:name/:action", IrHandler(irCh))
 
 	// default to file server
-	router.Methods("GET").Handler(http.FileServer(http.Dir("public")))
+	routes.Static("/", docroot)
 
-	http.ListenAndServe(":"+*port, router)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), routes)
 }

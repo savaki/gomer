@@ -1,10 +1,8 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/savaki/go.hue"
-	"io"
-	"net/http"
 )
 
 type HueRequest struct {
@@ -78,15 +76,13 @@ func HueProcessor(username string, ch chan HueRequest) {
 	}
 }
 
-func HueHandler(ch chan HueRequest) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, request *http.Request) {
-		vars := mux.Vars(request)
-		name := vars["name"]
-		action := vars["action"]
+func HueHandler(ch chan HueRequest) func(*gin.Context) {
+	return func(c *gin.Context) {
+		name := c.Params.ByName("name")
+		action := c.Params.ByName("action")
 
 		ch <- HueRequest{name: name, action: action}
 
-		w.WriteHeader(http.StatusOK)
-		io.WriteString(w, "hello world")
+		c.String(200, "hello world")
 	}
 }
