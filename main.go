@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"github.com/codegangsta/cli"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
+	configFile := fmt.Sprintf("%s/.gomer", os.Getenv("HOME"))
+
 	app := cli.NewApp()
 	app.Name = "gomer"
 	app.Usage = "home automation system"
@@ -17,6 +20,7 @@ func main() {
 		cli.IntFlag{"port", 8080, "the port number to list on", "PORT"},
 		cli.StringFlag{"hue", "", "the hue username", "HUE_USERNAME"},
 		cli.StringFlag{"docroot", "public", "html content directory", "DOCROOT"},
+		cli.StringFlag{"config", configFile, "config file for our resources", "CONFIG_FILE"},
 	}
 	app.Action = Run
 	app.Run(os.Args)
@@ -27,11 +31,18 @@ func Run(c *cli.Context) {
 	username := c.String("hue")
 	docroot := c.String("docroot")
 
+	config, err := loadConfig(c.String("config"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Printf("%#v\n", config)
+
 	routes := gin.New()
 
 	// handle belkin related commands
 	belkinCh := make(chan BelkinRequest, 20)
-	go BelkinProcessor(belkinCh)
+	go BelkinProcessor(belkinCh, config.Devices)
+
 	routes.POST("/api/belkin/:name/:action", BelkinHandler(belkinCh))
 
 	// handle hue related commands

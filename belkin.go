@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/savaki/wemo"
+	"log"
 	"strconv"
 )
 
@@ -13,58 +14,24 @@ type BelkinRequest struct {
 	response chan string
 }
 
-func BelkinProcessor(ch chan BelkinRequest) {
+func BelkinProcessor(ch chan BelkinRequest, deviceConfigs map[string]string) {
 	for {
 		request := <-ch
 
 		var devices []*wemo.Device
-		switch request.name {
-		case "kitchen_overhead":
+		if host, found := deviceConfigs[request.name]; found {
 			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.8:49154"},
+				&wemo.Device{Host: host},
 			}
-
-		case "kitchen_sink":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.18:49153"},
+		} else if request.name == "all" {
+			devices = []*wemo.Device{}
+			for _, host := range deviceConfigs {
+				devices = append(devices, &wemo.Device{
+					Host: host,
+				})
 			}
-
-		case "mirror_overhead":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.17:49153"},
-			}
-
-		case "office_overhead":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.19:49154"},
-				// &wemo.Device{Host: "10.0.1.19:49153"},
-			}
-
-		case "bathroom":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.24:49153"},
-			}
-
-		case "left_wall":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.32:49153"},
-			}
-
-		case "right_wall":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.25:49153"},
-			}
-
-		case "all":
-			devices = []*wemo.Device{
-				&wemo.Device{Host: "10.0.1.32:49153"},
-				&wemo.Device{Host: "10.0.1.8:49154"},
-				&wemo.Device{Host: "10.0.1.18:49153"},
-				&wemo.Device{Host: "10.0.1.17:49153"},
-				&wemo.Device{Host: "10.0.1.19:49154"},
-				// &wemo.Device{Host: "10.0.1.19:49153"},
-				&wemo.Device{Host: "10.0.1.25:49153"},
-			}
+		} else {
+			log.Printf("WARNING - unknown device name, %s\n", request.name)
 		}
 
 		for _, device := range devices {
